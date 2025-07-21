@@ -1,11 +1,11 @@
-
+// app/page.tsx - Versión actualizada con editor Fabric.js
 'use client';
 
 import { useState, useEffect } from 'react';
 import CategoryScreen from './components/CategoryScreen';
 import SizeSelection from './components/SizeSelection';
 import PhotoUpload from './components/PhotoUpload';
-import PhotoEditor from './components/PhotoEditor';
+import FabricPhotoEditor from './components/FabricPhotoEditor'; // Nuevo editor
 import Cart from './components/Cart';
 import Confirmation from './components/Confirmation';
 import Payment from './components/Payment';
@@ -20,6 +20,7 @@ export default function Home() {
   const [orderData, setOrderData] = useState(null);
   const [showCartIcon, setShowCartIcon] = useState(false);
   const [showExitWarning, setShowExitWarning] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     const savedCart = localStorage.getItem('mifoto-cart');
@@ -30,7 +31,6 @@ export default function Home() {
     }
   }, []);
 
-  // Actualizar icono del carrito cuando cambie cartItems
   useEffect(() => {
     setShowCartIcon(cartItems.length > 0);
     localStorage.setItem('mifoto-cart', JSON.stringify(cartItems));
@@ -53,9 +53,21 @@ export default function Home() {
     setCurrentScreen(4);
   };
 
-  const handleEditComplete = (processedPhotos) => {
-    setUploadedPhotos(processedPhotos);
-    setCurrentScreen(5);
+  const handleEditComplete = async (processedPhotos) => {
+    setIsLoading(true);
+    
+    try {
+      // Las fotos ya vienen procesadas con las imágenes renderizadas
+      // Aquí podrías enviar las imágenes a tu backend si fuera necesario
+      
+      setUploadedPhotos(processedPhotos);
+      setCurrentScreen(5);
+    } catch (error) {
+      console.error('Error processing photos:', error);
+      alert('Error al procesar las fotos. Inténtalo de nuevo.');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleCartConfirm = (items) => {
@@ -70,7 +82,50 @@ export default function Home() {
 
   const handlePaymentSuccess = (paidOrder) => {
     setOrderData(paidOrder);
+    
+    // Aquí enviarías las imágenes finales al sistema de impresión
+    sendToPrintingSystem(paidOrder);
+    
     setCurrentScreen(8); 
+  };
+
+  const sendToPrintingSystem = async (orderData) => {
+    try {
+      // Enviar orden al sistema de impresión
+      // Esto dependería de tu backend y sistema de kioscos
+      
+      const printOrder = {
+        orderId: orderData.id,
+        customerName: orderData.customerName,
+        items: orderData.items.map(item => ({
+          size: item.size,
+          copies: item.processedPhotos.flatMap(photo => 
+            photo.copies.map(copy => ({
+              copyId: copy.copyId,
+              finalImage: copy.finalImage, // Blob de imagen renderizada
+              settings: copy.settings
+            }))
+          )
+        }))
+      };
+
+      // Ejemplo de envío al backend
+      const response = await fetch('/api/print-order', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(printOrder),
+      });
+
+      if (!response.ok) {
+        throw new Error('Error sending to printing system');
+      }
+
+      console.log('Order sent to printing system successfully');
+    } catch (error) {
+      console.error('Error sending to printing system:', error);
+    }
   };
 
   const handleNewOrder = () => {
@@ -110,6 +165,19 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-white relative">
+      {/* Loading overlay */}
+      {isLoading && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-2xl p-8 text-center">
+            <div className="w-16 h-16 bg-[#D75F1E] rounded-full flex items-center justify-center mx-auto mb-4 animate-pulse">
+              <i className="ri-camera-fill text-white text-2xl"></i>
+            </div>
+            <h3 className="text-xl font-bold text-[#2D3A52] mb-2">Procesando Fotos</h3>
+            <p className="text-[#2D3A52]/70">Aplicando configuraciones y renderizando...</p>
+          </div>
+        </div>
+      )}
+
       {/* Icono del carrito flotante */}
       {showCartIcon && currentScreen !== 5 && currentScreen !== 6 && currentScreen !== 7 && currentScreen !== 8 && (
         <div className="fixed top-8 right-8 z-50">
@@ -142,7 +210,7 @@ export default function Home() {
         />
       )}
       {currentScreen === 4 && (
-        <PhotoEditor 
+        <FabricPhotoEditor 
           photos={uploadedPhotos}
           selectedSize={selectedSize}
           onEditComplete={handleEditComplete}

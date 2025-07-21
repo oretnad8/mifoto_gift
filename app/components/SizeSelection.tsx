@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState } from 'react';
@@ -12,35 +11,45 @@ const SizeSelection = ({ onSizeSelect, onBack }) => {
       name: 'Foto Kiosco',
       dimensions: '10x15 cm',
       price: '2520',
-      preview: 'https://readdy.ai/api/search-image?query=professional%20photo%20print%2010x15%20cm%20size%20with%20white%20border%2C%20clean%20modern%20photography%20studio%20lighting%2C%20high%20quality%20photo%20paper%20texture%2C%20realistic%20photo%20dimension%20visualization%2C%20commercial%20printing%20quality&width=200&height=300&seq=kiosco-preview&orientation=portrait'
+      width: 10,
+      height: 15,
+      gradient: 'from-pink-400 via-red-500 to-pink-300'
     },
     {
       id: 'medium',
       name: 'Foto Kiosco',
       dimensions: '13x18 cm',
       price: '1920',
-      preview: 'https://readdy.ai/api/search-image?query=professional%20photo%20print%2013x18%20cm%20size%20with%20white%20border%2C%20clean%20modern%20photography%20studio%20lighting%2C%20high%20quality%20photo%20paper%20texture%2C%20realistic%20photo%20dimension%20visualization%2C%20commercial%20printing%20quality&width=260&height=360&seq=medium-preview&orientation=portrait'
+      width: 13,
+      height: 18,
+      gradient: 'from-teal-400 via-blue-500 to-blue-600'
     },
     {
       id: 'large',
       name: 'Foto Kiosco',
       dimensions: '15x20 cm',
       price: '1920',
-      preview: 'https://readdy.ai/api/search-image?query=professional%20photo%20print%2015x20%20cm%20size%20with%20white%20border%2C%20clean%20modern%20photography%20studio%20lighting%2C%20high%20quality%20photo%20paper%20texture%2C%20realistic%20photo%20dimension%20visualization%2C%20commercial%20printing%20quality&width=300&height=400&seq=large-preview&orientation=portrait'
+      width: 15,
+      height: 20,
+      gradient: 'from-purple-300 via-pink-300 to-purple-400'
     },
     {
       id: 'square-small',
       name: 'Foto Kiosco',
       dimensions: '10x10 cm',
       price: '2520',
-      preview: 'https://readdy.ai/api/search-image?query=professional%20square%20photo%20print%2010x10%20cm%20size%20with%20white%20border%2C%20clean%20modern%20photography%20studio%20lighting%2C%20high%20quality%20photo%20paper%20texture%2C%20realistic%20square%20photo%20dimension%20visualization%2C%20commercial%20printing%20quality&width=200&height=200&seq=square-small-preview&orientation=squarish'
+      width: 10,
+      height: 10,
+      gradient: 'from-orange-300 via-yellow-400 to-red-400'
     },
     {
       id: 'square-large',
       name: 'Foto Kiosco',
       dimensions: '15x15 cm',
       price: '2200',
-      preview: 'https://readdy.ai/api/search-image?query=professional%20square%20photo%20print%2015x15%20cm%20size%20with%20white%20border%2C%20clean%20modern%20photography%20studio%20lighting%2C%20high%20quality%20photo%20paper%20texture%2C%20realistic%20square%20photo%20dimension%20visualization%2C%20commercial%20printing%20quality&width=300&height=300&seq=square-large-preview&orientation=squarish'
+      width: 15,
+      height: 15,
+      gradient: 'from-indigo-400 via-purple-500 to-pink-400'
     }
   ];
 
@@ -52,13 +61,61 @@ const SizeSelection = ({ onSizeSelect, onBack }) => {
     }, 300);
   };
 
+  // Componente para la representación visual del tamaño
+  const SizePreview = ({ size, isSelected, isMobile = false }) => {
+    const scale = isMobile ? 4 : 6; // Factor de escala para visualización
+    const width = size.width * scale;
+    const height = size.height * scale;
+    
+    return (
+      <div className="flex justify-center items-center">
+        <div className="relative group">
+          <div 
+            className={`border-4 border-white shadow-lg transition-all duration-500 ease-out relative overflow-hidden ${
+              isSelected ? 'ring-4 ring-[#D75F1E] ring-offset-2 scale-105' : 'hover:scale-110'
+            }`}
+            style={{
+              width: `${width}px`,
+              height: `${height}px`,
+              maxWidth: isMobile ? '80px' : '120px',
+              maxHeight: isMobile ? '120px' : '160px'
+            }}
+          >
+            {/* Gradiente de fondo sin puntos */}
+            <div className={`w-full h-full bg-gradient-to-br ${size.gradient} relative`}>
+              {/* Efecto de brillo animado que se mueve */}
+              <div 
+                className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent transform -skew-x-12 -translate-x-full transition-transform duration-1000 ease-in-out"
+                style={{
+                  animation: 'slideShine 3s infinite ease-in-out'
+                }}
+              ></div>
+            </div>
+          </div>
+          
+          {/* Etiqueta de dimensiones */}
+          <div className="absolute -bottom-6 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white px-2 py-1 rounded text-xs font-bold whitespace-nowrap">
+            {size.dimensions}
+          </div>
+          
+          {/* Indicador de selección */}
+          {isSelected && (
+            <div className="absolute -top-2 -right-2 w-6 h-6 bg-[#D75F1E] rounded-full flex items-center justify-center shadow-lg animate-bounce">
+              <i className="ri-check-line text-white text-sm"></i>
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  };
+
   return (
-    <div className="min-h-screen bg-white px-4 sm:px-8 py-8 sm:py-12">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 px-4 sm:px-8 py-8 sm:py-12">
       <div className="max-w-6xl mx-auto">
         <div className="flex items-center justify-between mb-8 sm:mb-12">
           <button
             onClick={onBack}
-            className="flex items-center gap-2 text-[#2D3A52] hover:text-[#D75F1E] transition-colors duration-200 whitespace-nowrap"
+            className="flex items-center gap-2 text-[#2D3A52] hover:text-[#D75F1E] transition-all duration-200 whitespace-nowrap hover:scale-105"
           >
             <i className="ri-arrow-left-line text-xl"></i>
             <span className="text-base sm:text-lg font-medium">Volver</span>
@@ -77,35 +134,22 @@ const SizeSelection = ({ onSizeSelect, onBack }) => {
           {sizes.map((size) => (
             <div
               key={size.id}
-              className={`bg-gradient-to-br from-[#CEDFE7] to-[#FCF4F3] rounded-2xl p-6 cursor-pointer transition-all duration-300 ${
+              className={`bg-white/80 backdrop-blur-sm rounded-2xl p-6 cursor-pointer transition-all duration-500 ease-out hover:shadow-2xl ${
                 selectedSize?.id === size.id
-                  ? 'ring-4 ring-[#D75F1E] shadow-xl'
-                  : 'shadow-lg'
+                  ? 'ring-4 ring-[#D75F1E] shadow-2xl scale-105'
+                  : 'shadow-lg hover:scale-102'
               }`}
               onClick={() => handleSizeClick(size)}
             >
               <div className="flex items-center justify-center text-center">
                 <div className="flex flex-col items-center">
-                  {/* Imagen centrada */}
-                  <div className="mb-4">
-                    <div className="relative overflow-hidden rounded-lg shadow-md">
-                      <img
-                        src={size.preview}
-                        alt={`Preview ${size.name}`}
-                        className="object-cover object-top"
-                        style={{
-                          width: size.id.includes('square') ? '80px' : '65px',
-                          height: size.id.includes('square') ? '80px' : '90px'
-                        }}
-                      />
-                      {selectedSize?.id === size.id && (
-                        <div className="absolute inset-0 bg-[#D75F1E]/20 flex items-center justify-center">
-                          <div className="w-6 h-6 bg-[#D75F1E] rounded-full flex items-center justify-center">
-                            <i className="ri-check-line text-white text-sm"></i>
-                          </div>
-                        </div>
-                      )}
-                    </div>
+                  {/* Representación visual del tamaño */}
+                  <div className="mb-6">
+                    <SizePreview 
+                      size={size} 
+                      isSelected={selectedSize?.id === size.id}
+                      isMobile={true}
+                    />
                   </div>
 
                   {/* Texto centrado */}
@@ -128,38 +172,25 @@ const SizeSelection = ({ onSizeSelect, onBack }) => {
           {sizes.map((size) => (
             <div
               key={size.id}
-              className={`bg-gradient-to-br from-[#CEDFE7] to-[#FCF4F3] rounded-2xl p-6 cursor-pointer transition-all duration-300 transform hover:scale-105 hover:shadow-xl ${
+              className={`bg-white/80 backdrop-blur-sm rounded-2xl p-6 cursor-pointer transition-all duration-500 ease-out hover:shadow-2xl hover:-translate-y-2 ${
                 selectedSize?.id === size.id
-                  ? 'ring-4 ring-[#D75F1E] shadow-xl scale-105'
+                  ? 'ring-4 ring-[#D75F1E] shadow-2xl -translate-y-2'
                   : 'shadow-lg'
               }`}
               onClick={() => handleSizeClick(size)}
             >
               <div className="mb-6 flex justify-center">
-                <div className="relative overflow-hidden rounded-lg shadow-md">
-                  <img
-                    src={size.preview}
-                    alt={`Preview ${size.name}`}
-                    className="object-cover object-top"
-                    style={{
-                      width: size.id.includes('square') ? '120px' : '90px',
-                      height: size.id.includes('square') ? '120px' : '130px'
-                    }}
-                  />
-                  {selectedSize?.id === size.id && (
-                    <div className="absolute inset-0 bg-[#D75F1E]/20 flex items-center justify-center">
-                      <div className="w-8 h-8 bg-[#D75F1E] rounded-full flex items-center justify-center">
-                        <i className="ri-check-line text-white text-lg"></i>
-                      </div>
-                    </div>
-                  )}
-                </div>
+                <SizePreview 
+                  size={size} 
+                  isSelected={selectedSize?.id === size.id}
+                  isMobile={false}
+                />
               </div>
 
               <div className="text-center">
                 <h3 className="text-lg font-bold text-[#2D3A52] mb-2">{size.name}</h3>
                 <p className="text-[#2D3A52]/70 mb-3">{size.dimensions}</p>
-                <div className="bg-white/80 rounded-lg px-3 py-2 inline-block">
+                <div className="bg-white/90 backdrop-blur-sm rounded-lg px-3 py-2 inline-block shadow-sm">
                   <span className="text-[#D75F1E] font-bold text-lg">${size.price}</span>
                   <span className="text-[#2D3A52]/70 text-sm ml-1">par</span>
                 </div>
@@ -170,7 +201,7 @@ const SizeSelection = ({ onSizeSelect, onBack }) => {
 
         {/* Información adicional */}
         <div className="mt-8 sm:mt-16 text-center">
-          <div className="bg-gradient-to-r from-[#CEDFE7] to-[#FCF4F3] rounded-2xl p-6 sm:p-8 max-w-4xl mx-auto">
+          <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 sm:p-8 max-w-4xl mx-auto shadow-xl">
             <h3 className="text-lg sm:text-xl font-bold text-[#2D3A52] mb-4">Información Importante</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 text-left">
               <div>
@@ -185,6 +216,24 @@ const SizeSelection = ({ onSizeSelect, onBack }) => {
           </div>
         </div>
       </div>
+
+      <style jsx>{`
+        @keyframes slideShine {
+          0% { 
+            transform: translateX(-100%) skewX(-12deg); 
+          }
+          50% { 
+            transform: translateX(100%) skewX(-12deg); 
+          }
+          100% { 
+            transform: translateX(200%) skewX(-12deg); 
+          }
+        }
+        
+        .hover\\:scale-102:hover {
+          transform: scale(1.02);
+        }
+      `}</style>
     </div>
   );
 };
